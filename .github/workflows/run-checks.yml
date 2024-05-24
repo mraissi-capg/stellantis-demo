@@ -1,0 +1,40 @@
+name: Run Checks and Tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+env:
+  python-version: 3.8
+      
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python ${{ env.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check code formatting
+        run: |
+          black --check src/
+          flake8 --config setup.cfg src/
+          isort --check-only src/
+
+      - name: Run unit tests
+        run: pytest test/
